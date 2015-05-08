@@ -32,8 +32,11 @@ import qualified Network.Bitcoin.Api.Types                    as T
 import           Network.Bitcoin.Api.Types.UnspentTransaction hiding (confirmations)
 
 -- | Watches incoming transactions and yields new transactions as soon as they
---   are are inside a block. Note that this launches a background thread which
---   stops as soon as the Conduit is closed.
+--   are are inside a block. This is modelled as a Conduit 'C.Source', which means
+--   that you can easily apply your own mutators, filters, etcetera.
+--
+--   Keep in mind that calling this function launches a background thread which
+--   pools the Bitcoin daemon, and stops as soon as the Conduit Sink is closed.
 watch :: T.Client                    -- ^ Our client session context
       -> Maybe Integer               -- ^ Minimum amount of confirmations. Should be 1 or higher. A default value of 6 is used.
       -> C.Source IO Btc.Transaction -- ^ Conduit that generates transactions
