@@ -1,10 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 
--- | This module provides functionality to manipulate raw transaction. It
---   automatically interprets transactions using the `bitcoin-tx` package, so
---   you can work with actual 'Btc.Transaction' objects rather than their
---   serialized format.
-
 module Control.Bitcoin.Api.Transaction where
 
 import           Data.Maybe                                   (fromMaybe)
