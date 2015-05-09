@@ -13,6 +13,7 @@ import qualified Network.Bitcoin.Api.Transaction              as Transaction
 import           Network.Bitcoin.Api.Types.UnspentTransaction (amount)
 import qualified Network.Bitcoin.Api.Wallet                   as Wallet
 
+import qualified Control.Bitcoin.Api.Transaction              as Transaction
 import           Control.Bitcoin.Api.TestUtil                 (testClient)
 import           Test.Hspec
 
@@ -22,6 +23,7 @@ spec = do
     it "can watch for new transactions" $ do
       testClient $ \client -> do
 
+        _                <- Mining.generate client 10
         result <- newEmptyMVar
 
         -- This forks a thread, consumes a single transaction from the conduit,
