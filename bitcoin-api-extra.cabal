@@ -33,6 +33,7 @@ library
                      , text
                      , bytestring
                      , binary
+                     , lens
 
                      , conduit
                      , transformers

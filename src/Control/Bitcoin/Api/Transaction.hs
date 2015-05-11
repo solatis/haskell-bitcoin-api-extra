@@ -2,29 +2,23 @@
 
 module Control.Bitcoin.Api.Transaction where
 
-import           Data.Maybe                                   (fromMaybe)
+import qualified Data.Conduit                    as C (Source)
 
-import qualified Data.Conduit                                 as C (Source)
+import           Control.Concurrent              (forkIO, killThread,
+                                                  myThreadId, threadDelay)
+import           Control.Concurrent.STM.TBMQueue (isClosedTBMQueue, newTBMQueue,
+                                                  writeTBMQueue)
+import           Control.Lens                    ((^.))
+import           Control.Monad                   (unless)
+import           Control.Monad.IO.Class          (liftIO)
+import           Control.Monad.STM               (atomically)
+import           Data.Conduit.TQueue             (sourceTBMQueue)
 
-import           Control.Concurrent                           (forkIO,
-                                                               killThread,
-                                                               myThreadId,
-                                                               threadDelay)
-import           Control.Concurrent.STM.TBMQueue              (isClosedTBMQueue,
-                                                               newTBMQueue,
-                                                               writeTBMQueue)
-import           Control.Monad                                (unless)
-import           Control.Monad.IO.Class                       (liftIO)
-import           Control.Monad.STM                            (atomically)
-import           Data.Conduit.TQueue                          (sourceTBMQueue)
+import qualified Data.Bitcoin.Block              as Btc
+import qualified Data.Bitcoin.Transaction        as Btc
 
-import qualified Data.Bitcoin.Transaction                     as Btc
-import qualified Data.Bitcoin.Block                           as Btc
-
-import qualified Network.Bitcoin.Api.Blockchain               as Blockchain
-import qualified Network.Bitcoin.Api.Types                    as T
-
-import           Network.Bitcoin.Api.Types.UnspentTransaction hiding (confirmations)
+import qualified Network.Bitcoin.Api.Blockchain  as Blockchain
+import qualified Network.Bitcoin.Api.Types       as T
 
 -- | Watches incoming transactions and yields new transactions as soon as they
 --   are are inside a block. This is modelled as a Conduit 'C.Source', which means
@@ -66,7 +60,7 @@ watch client (Just confirmations) = do
       tid   <- myThreadId
 
 
-      result <- mapM (insert chan) (Btc.blockTxns block)
+      result <- mapM (insert chan) (block ^. Btc.blockTxns)
       let isClosed = False `elem` result
 
       if isClosed
